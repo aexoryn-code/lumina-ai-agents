@@ -83,7 +83,7 @@ Follow these steps to spin up your local development environment:
 #### 1. Repository Setup & Environment
 Clone the repository and prepare the configuration files:
 ```bash
-git clone <repo-url>
+git clone https://github.com/aexoryn-code/lumina-ai-agents.git
 cd lumina-agents
 cp .env.example .env
 ```
