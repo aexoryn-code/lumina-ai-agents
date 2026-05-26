@@ -178,7 +178,35 @@ class MemoryManager:
         """Cleanup old memories"""
         try:
             cutoff = datetime.utcnow() - timedelta(days=days)
-            logger.info("Memory cleanup started", cutoff=cutoff.isoformat())
+            cutoff_timestamp = cutoff.isoformat()
+            logger.info("Memory cleanup started", cutoff=cutoff_timestamp)
+            
+            # Cleanup old episodic memories from Redis
+            # Scan for all episodic memory keys
+            cursor = 0
+            deleted_count = 0
+            
+            while True:
+                cursor, keys = await self.redis_client.scan(cursor, match="ep:*", count=100)
+                for key in keys:
+                    # Get the last event to check timestamp
+                    events = await self.redis_client.lrange(key, -1, -1)
+                    if events:
+                        try:
+                            last_event = json.loads(events[0])
+                            event_time = datetime.fromisoformat(last_event.get("timestamp", ""))
+                            if event_time < cutoff:
+                                await self.redis_client.delete(key)
+                                deleted_count += 1
+                        except (json.JSONDecodeError, ValueError):
+                            # Skip invalid entries
+                            pass
+                
+                if cursor == 0:
+                    break
+            
+            logger.info("Memory cleanup completed", deleted_episodic=deleted_count)
+            
         except Exception as e:
             logger.error("Memory cleanup failed", error=str(e))
 
