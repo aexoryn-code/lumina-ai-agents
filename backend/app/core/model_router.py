@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Any
 from enum import Enum
+from functools import lru_cache
 import structlog
 from litellm import completion, acompletion
 from app.config import get_settings
@@ -174,6 +175,16 @@ class ModelRouter:
         )
 
         return selected_model
+
+    @lru_cache(maxsize=128)
+    def _get_cached_model_key(
+        self,
+        task_type: str,
+        context_length: Optional[int],
+        priority: str,
+    ) -> str:
+        """Cache key generator for model selection"""
+        return f"{task_type}:{context_length}:{priority}"
 
     async def complete(
         self,

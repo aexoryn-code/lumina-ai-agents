@@ -31,13 +31,15 @@ class MemoryManager:
     async def initialize(self):
         """Initialize memory connections"""
         try:
+            # Initialize Redis with connection pooling
             self.redis_client = await redis.from_url(
                 settings.redis_url,
                 encoding="utf-8",
                 decode_responses=True,
+                max_connections=20,  # Connection pool size
             )
             await self.redis_client.ping()
-            logger.info("Redis connected")
+            logger.info("Redis connected with connection pooling")
 
             self.qdrant_client = QdrantClient(
                 host=settings.QDRANT_HOST,
@@ -121,7 +123,7 @@ class MemoryManager:
         limit: int = 5,
         score_threshold: float = 0.7,
     ) -> List[Dict[str, Any]]:
-        """Search semantic memory"""
+        """Search semantic memory with optimized payload extraction"""
         try:
             results = self.qdrant_client.search(
                 collection_name=self.collection_name,
@@ -129,12 +131,14 @@ class MemoryManager:
                 limit=limit,
                 score_threshold=score_threshold,
             )
+            # Optimized result transformation
             return [
                 {
                     "id": r.id,
                     "score": r.score,
-                    "content": r.payload.get("content"),
-                    "metadata": {k: v for k, v in r.payload.items() if k != "content"},
+                    "content": r.payload.get("content", ""),
+                    "metadata": {k: v for k, v in r.payload.items() if k not in ("content", "timestamp")},
+                    "timestamp": r.payload.get("timestamp"),
                 }
                 for r in results
             ]

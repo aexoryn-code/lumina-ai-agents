@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     # App
     APP_NAME: str = "Lumina AI Agents"
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = "1.0.0"
     APP_ENV: str = "development"
     SECRET_KEY: str = "your-secret-key-change-in-production"
     API_HOST: str = "0.0.0.0"
