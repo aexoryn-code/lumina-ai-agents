@@ -202,7 +202,7 @@ class ModelRouter:
                 **kwargs
             )
         except Exception as e:
-            logger.warn(
+            logger.warning(
                 "Primary model completion failed, attempting fallback",
                 model=primary_model,
                 fallback=fallback_model,

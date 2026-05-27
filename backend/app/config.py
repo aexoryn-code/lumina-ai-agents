@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "lumina"
     POSTGRES_USER: str = "lumina"
-    POSTGRES_PASSWORD: str = "changeme"
+    POSTGRES_PASSWORD: str = ""
 
     # Redis
     REDIS_HOST: str = "localhost"

@@ -88,3 +88,4 @@ qdrant-data/
 .cache/
 temp/
 tmp/
+coverage.xml

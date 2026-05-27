@@ -7,6 +7,7 @@ from app.config import get_settings
 from app.database import init_db, close_db
 from app.core.memory_manager import memory_manager
 from app.api.routes import chat, agents, memory, websocket
+from app.api.middleware.rate_limit import RateLimitMiddleware
 from app.utils.errors import register_exception_handlers
 from app.utils.logging import setup_logging
 
@@ -54,6 +55,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate limiting middleware
+app.add_middleware(RateLimitMiddleware, requests_per_minute=getattr(settings, "RATE_LIMIT_PER_MINUTE", 60))
 
 # Register exception handlers
 register_exception_handlers(app)
